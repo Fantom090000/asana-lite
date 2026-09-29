@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Приглашение — Asana Lite</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    font-family: "Segoe UI", system-ui, Arial, sans-serif; color: #1e1f21; background: #f9f8f8;
+  }
+  .card {
+    background: #fff; border: 1px solid #edeae9; border-radius: 14px; padding: 28px 30px;
+    width: 380px; max-width: 92vw; box-shadow: 0 6px 24px rgba(0,0,0,.07);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+  .dot { width: 20px; height: 20px; border-radius: 50%; background: #f06a6a; }
+  h1 { font-size: 18px; margin: 8px 0 2px; }
+  p.sub { color: #6d6e6f; font-size: 13.5px; margin: 0 0 16px; }
+  label { display: block; font-size: 12.5px; color: #6d6e6f; margin: 10px 0 4px; }
+  input {
+    width: 100%; padding: 9px 11px; border: 1px solid #d9d6d3; border-radius: 8px; font: inherit; outline: none;
+  }
+  input:focus { border-color: #4573d2; }
+  button {
+    width: 100%; margin-top: 16px; padding: 10px; border: none; border-radius: 20px;
+    background: #f06a6a; color: #fff; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #d95454; }
+  button:disabled { opacity: .6; cursor: default; }
+  .msg { margin-top: 12px; font-size: 13.5px; display: none; }
+  .msg.err { color: #e8384f; display: block; }
+  .msg.ok { color: #58a182; display: block; }
+  .ok a { color: #4573d2; }
+  .hint { font-size: 12px; color: #a2a0a2; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo"><span class="dot"></span>Asana Lite</div>
+    <h1>Вы приглашены</h1>
+    <p class="sub">Придумайте логин и пароль — они станут вашим входом в приложение.</p>
+    <form id="f">
+      <label for="u">Логин (латиница, можно e-mail)</label>
+      <input id="u" autocomplete="username" placeholder="например, ivan или ivan@mail.ru" required>
+      <div class="hint">3–100 символов: a-z, 0-9, точка, дефис, подчёркивание, @</div>
+      <label for="p">Пароль</label>
+      <input id="p" type="password" autocomplete="new-password" placeholder="минимум 8 символов" required>
+      <label for="p2">Пароль ещё раз</label>
+      <input id="p2" type="password" autocomplete="new-password" required>
+      <button type="submit" id="btn">Активировать приглашение</button>
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
+<script>
+'use strict';
+const msg = document.getElementById('msg');
+const btn = document.getElementById('btn');
+const code = window.location.pathname.split('/').pop();
+
+document.getElementById('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  msg.className = 'msg';
+  const username = document.getElementById('u').value.trim();
+  const password = document.getElementById('p').value;
+  const p2 = document.getElementById('p2').value;
+  if (password !== p2) { msg.textContent = 'Пароли не совпадают.'; msg.classList.add('err'); return; }
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/invite-redeem', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, username, password }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Ошибка ' + res.status);
+    msg.innerHTML = 'Готово! Теперь <a href="/login">войдите</a> с этим логином и паролем.';
+    msg.classList.add('ok');
+    btn.hidden = true;
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.classList.add('err');
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

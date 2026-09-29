@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asana Lite</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23f06a6a'/%3E%3Ccircle cx='16' cy='11' r='4' fill='%23fff'/%3E%3Ccircle cx='11' cy='19' r='4' fill='%23fff'/%3E%3Ccircle cx='21' cy='19' r='4' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div class="side-logo"><span class="logo-dot"></span><span>Asana Lite</span></div>
+    <nav id="side-nav"></nav>
+    <div id="side-footer">
+      <button id="chat-nav-btn" class="nav-item" type="button"><span>💬</span> Чат <span id="chat-badge-side" class="chat-badge-side" hidden>0</span></button>
+      <button id="settings-nav-btn" class="nav-item" type="button"><span>⚙️</span> Настройки</button>
+    </div>
+  </aside>
+  <div id="side-overlay" hidden></div>
+  <main id="main">
+    <header id="topbar">
+      <div id="topbar-left">
+        <button id="burger" aria-label="Меню">&#9776;</button>
+        <h1 id="view-title"></h1>
+      </div>
+      <div id="topbar-right">
+        <div class="tabs" id="tabs" hidden>
+          <button class="tab" data-tab="list" type="button">Список</button>
+          <button class="tab" data-tab="board" type="button">Доска</button>
+          <button class="tab" data-tab="scheme" type="button">Схема</button>
+          <button class="tab" data-tab="graph" type="button">Граф</button>
+        </div>
+        <input id="search" type="search" placeholder="Поиск задач..." autocomplete="off">
+      </div>
+    </header>
+    <div id="content"></div>
+  </main>
+  <aside id="detail" hidden></aside>
+</div>
+<div id="menu-layer"></div>
+<div id="toast" hidden></div>
+<button id="chat-fab" type="button" aria-label="Чат">💬<span id="chat-badge" hidden>0</span></button>
+<div id="chat-panel" hidden>
+  <div id="chat-head"><span>Чат команды</span><button id="chat-close" type="button">&#10005;</button></div>
+  <div id="chat-messages"></div>
+  <div id="chat-input-row">
+    <button id="chat-attach" type="button" title="Прикрепить файл">📎</button>
+    <input id="chat-file-input" type="file" hidden multiple>
+    <textarea id="chat-input" placeholder="Сообщение... Enter — отправить, Shift+Enter — перенос, перетащите файл" rows="2"></textarea>
+    <button id="chat-send" type="button">&#10148;</button>
+  </div>
+  <div id="chat-settings">
+    <div class="chat-settings-row">
+      <label class="chat-settings-label"><input id="chat-sound" type="checkbox" checked> аниме-озвучка</label>
+      <select id="chat-voice-select" title="Голос аниме-тян"></select>
+    </div>
+    <div class="chat-settings-row">
+      <span>Тема</span>
+      <select id="theme-select" title="Тема сайта">
+        <option value="light">Светлая</option>
+        <option value="dark">Тёмная</option>
+        <option value="auto">Авто</option>
+      </select>
+    </div>
+    <div class="chat-settings-row">
+      <span>Режим чата</span>
+      <select id="chat-mode-select" title="Режим">
+        <option value="panel">Панель</option>
+        <option value="window">Окно</option>
+        <option value="page">Страница</option>
+      </select>
+    </div>
+    <div class="chat-settings-hint">Файлы — без лимитов, мгновенная загрузка/скачка</div>
+  </div>
+</div>
+<audio id="chat-audio" preload="auto" hidden></audio>
+<script src="/app.js"></script>
+</body>
+</html>

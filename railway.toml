@@ -1,0 +1,97 @@
+version: "1"
+
+services:
+  # PostgreSQL database for Keycloak
+  postgres:
+    image: postgres:16-alpine
+    restartPolicy: always
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: "{{Postgres.POSTGRES_PASSWORD}}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 512Mi
+
+  # Keycloak authentication server
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    restartPolicy: always
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: "{{Postgres.POSTGRES_PASSWORD}}"
+      KC_DB_SCHEMA: public
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_PROXY: edge
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: "{{Keycloak.ADMIN_PASSWORD}}"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: "8080"
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    dependsOn:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          memory: 1Gi
+
+  # Node.js application
+  app:
+    build:
+      dockerfile: Dockerfile
+    restartPolicy: always
+    environment:
+      PORT: 3000
+      HOST: 0.0.0.0
+      KC_BASE_URL: http://keycloak:8080
+      KC_PUBLIC_URL: "{{App.RAILWAY_PUBLIC_DOMAIN}}"
+      KC_PORT: 8080
+      REALM: asana
+      CLIENT_ID: asana-lite
+      CLIENT_SECRET: "{{Keycloak.CLIENT_SECRET}}"
+      SESSION_SECRET: "{{App.SESSION_SECRET}}"
+      OWNER_SUB: "{{Keycloak.OWNER_SUB}}"
+    volumes:
+      - app_data:/app/data
+      - chat_files:/app/chat_files
+    dependsOn:
+      - keycloak
+    deploy:
+      resources:
+        limits:
+          memory: 512Mi
+
+volumes:
+  postgres_data:
+  app_data:
+  chat_files:
+
+# Auto-generated secrets (Railway will create these)
+variables:
+  Postgres.POSTGRES_PASSWORD:
+    description: "PostgreSQL password for Keycloak"
+    generate: password
+  Keycloak.ADMIN_PASSWORD:
+    description: "Keycloak admin password"
+    generate: password
+  Keycloak.CLIENT_SECRET:
+    description: "Keycloak client secret for asana-lite"
+    generate: password
+  Keycloak.OWNER_SUB:
+    description: "Keycloak user ID for owner (set after first login)"
+    value: ""
+  App.SESSION_SECRET:
+    description: "Session secret for Node app"
+    generate: password
+  App.RAILWAY_PUBLIC_DOMAIN:
+    description: "Public domain from Railway (auto-filled after deploy)"
+    value: ""

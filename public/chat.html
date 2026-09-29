@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Чат — Asana Lite</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  body { margin:0; height:100vh; display:flex; flex-direction:column; background:var(--bg); color:var(--text); }
+  #chat-standalone { flex:1; display:flex; flex-direction:column; max-width:800px; width:100%; margin:0 auto; border-left:1px solid var(--border); border-right:1px solid var(--border); background:var(--bg); }
+  #chat-standalone #chat-head { background:#2b5278; color:#fff; }
+  [data-theme="dark"] #chat-standalone #chat-head { background:#000; }
+  #standalone-messages { flex:1; overflow-y:auto; padding:14px 14px 10px; display:flex; flex-direction:column; gap:8px; background:#e6ebee; background-image:radial-gradient(circle at 1px 1px, rgba(0,0,0,.06) 1px, transparent 0); background-size:22px 22px; }
+  [data-theme="dark"] #standalone-messages { background:#0e1621; background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.04) 1px, transparent 0); }
+  #standalone-input-row { display:flex; gap:8px; padding:10px; border-top:1px solid var(--border); background:var(--bg); align-items:flex-end; }
+  #standalone-input { flex:1; resize:none; border:1px solid var(--border); border-radius:18px; padding:10px 14px; outline:none; font:inherit; font-size:13.5px; max-height:110px; background:var(--bg); color:var(--text); }
+  #standalone-input:focus { border-color:var(--blue); }
+  .top-bar { padding:10px 14px; background:var(--bg-side); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+  .top-bar a { color:var(--blue); text-decoration:none; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="/">← Назад в Asana Lite</a>
+  <span style="margin-left:auto;font-weight:700;">Чат команды — отдельное окно</span>
+  <select id="theme-select-standalone" style="border:1px solid var(--border);border-radius:7px;padding:4px 8px;background:var(--bg);color:var(--text);">
+    <option value="light">Светлая</option><option value="dark">Тёмная</option><option value="auto">Авто</option>
+  </select>
+</div>
+<div id="chat-standalone">
+  <div id="chat-head"><span>Чат команды</span><span id="standalone-online" style="font-weight:400;font-size:12px;opacity:.8;margin-left:auto;"></span></div>
+  <div id="standalone-messages"></div>
+  <div id="standalone-input-row">
+    <button id="standalone-attach" type="button" title="Прикрепить файл" style="width:38px;height:38px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);font-size:18px;flex-shrink:0;">📎</button>
+    <input id="standalone-file-input" type="file" hidden multiple>
+    <textarea id="standalone-input" placeholder="Сообщение... Enter — отправить, Shift+Enter — перенос" rows="1"></textarea>
+    <button id="standalone-send" type="button" style="width:38px;height:38px;border-radius:50%;background:#2b5278;color:#fff;font-size:16px;flex-shrink:0;">&#10148;</button>
+  </div>
+  <div style="padding:6px 10px;border-top:1px solid var(--border);background:var(--bg-side);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);">
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input id="standalone-sound" type="checkbox" checked> аниме-озвучка</label>
+    <select id="standalone-voice" style="flex:1;border:1px solid var(--border);border-radius:7px;padding:4px 8px;background:var(--bg);color:var(--text);max-width:220px;"></select>
+  </div>
+</div>
+<script>
+(function(){
+  const themeMode = localStorage.getItem('al-theme') || 'light';
+  function applyTheme(mode){ localStorage.setItem('al-theme',mode); let eff=mode; if(mode==='auto') eff=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'; document.documentElement.setAttribute('data-theme',eff); const s=document.getElementById('theme-select-standalone'); if(s) s.value=mode; }
+  applyTheme(themeMode);
+  document.getElementById('theme-select-standalone').addEventListener('change', e=>applyTheme(e.target.value));
+  try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{ if(localStorage.getItem('al-theme')==='auto') applyTheme('auto'); }); }catch{}
+})();
+</script>
+<script src="/chat-standalone.js"></script>
+</body>
+</html>
